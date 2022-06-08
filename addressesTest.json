@@ -1,0 +1,48 @@
+{
+	"CreditSpent": 1,
+	"CreditBalance": 0,
+	"Records" : [
+		{
+			"Number": "1410",
+			"Street": "Livingston",
+			"Suffix": "Ct",
+			"City": "Columbus",
+			"State": "OH",
+			"Zip": "43227",
+			"StreetName": null,
+			"Address": "1410 Livingston Ct",
+			"StateName": "Ohio",
+			"Zip4": "2326",
+			"MAK": "1596173980",
+			"AddressType": "Street",
+			"RBDI": "Residential",
+			"Fips": "39049",
+			"County": "franklin                 ",
+			"Results": "AS01",
+			"Active": "Yes",
+			"Cnt": 0,
+			"NoSuffix": null
+		},
+		{
+			"Number": "1",
+			"Street": "Livingston",
+			"Suffix": "Ave",
+			"City": "Columbus",
+			"State": "OH",
+			"Zip": "43215",
+			"StreetName": null,
+			"Address": "1 E Livingston Ave",
+			"StateName": "Ohio",
+			"Zip4": "7700",
+			"MAK": "6320835352",
+			"AddressType": "Highrise",
+			"RBDI": "Business",
+			"Fips": "39049",
+			"County": "franklin                 ",
+			"Results": "AE09,AS02,AS17",
+			"Active": "Yes",
+			"Cnt": 0,
+			"NoSuffix": null
+		}
+	]
+}
