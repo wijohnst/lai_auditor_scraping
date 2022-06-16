@@ -31,38 +31,48 @@ async function searchForAddress(page, streetNumber) {
 }
 
 async function scrapeData(page) {
-  // Find all the elements with a className of 'DataletSideHeading'...
-  // ... loop through to add the key/value pair into the resultsArray
+  // from the DOM, the structure of a <tr> element from a table element looks like this:
+  // <tr>
+  //    <td className='DataletSideHeading'></td>    => this is what's in titles variable below
+  //    <td></td>                                   => this will be the nextElementSibling of every title elements in titles array
+  // </tr>
   const resultObj = await page.$$eval('.DataletSideHeading', (titles) => {
-    let result = {};
-    for (let i = 0; i < titles.length; i++) {
-      // If the value of the first <td> under a <tr> is empty and has a non-breaking space('\u00a0' is the unicode character for '&nbsp')...
-      // ...the value for the second <td> should be concatinated into one single column to match the <td> of the last <tr>
-      if (titles[i].textContent === '\u00a0' || titles[i].textContent === '') {
+    // find all the elements with a className of 'DataletSideHeading'...
+    // ... loop through to add the key/value pair into the resultsArray
+    const reducedResult = titles.reduce((result, td, index, arr) => {
+      // reduce method takes up to 4 arguments: previousValue, currentValue, currentIndex, originalArray
+      if (td.textContent === '\u00a0' || td.textContent === '') {
+        // if the value of the first <td> under a <tr> is empty and has a non-breaking space('\u00a0' is the unicode character for '&nbsp')...
+        // ...the value for the second <td> should be concatinated into one single column to match the <td> of the last <tr>
         result[Object.keys(result).pop()] =
-          Object.values(result).pop().replace('\u00a0', '').trim() +
+          result[Object.keys(result).pop()] +
           ' ' +
-          titles[i].nextElementSibling.textContent
-            .replace('\u00a0', '')
+          td.nextElementSibling.textContent
+            .replace('\u00a0', ' ')
             .trim()
             .replace('Submit Mailing Address Correction Request', '')
             .replace('Submit Site Address Correction Request', '');
-      } else if (titles[i].textContent.endsWith('/')) {
+      } else if (index > 0 && arr[index - 1].textContent.endsWith('/')) {
         // This is specifically for Owner Mailing/Contact Address. They are rendered as two rows but it makes more sense ...
-        // ...if they are one column and the column name should be combining the current textContent and the next one...
-        // ... we need to flag the next textContent by giving it an empty value so the next iteration will run it through the first scenario of If statement
-        titles[i].textContent += titles[i + 1].textContent;
-        titles[i + 1].textContent = '';
-        result[titles[i].textContent] =
-          titles[i].nextElementSibling.textContent;
+        // ...if they are one column and the column name should be combining the current textContent and the next one
+        const lastKey = Object.keys(result).pop(); // Find the value of last key/value pair
+        const lastValue = result[lastKey]; // Find the value of last key/value pair
+        const currentKey = lastKey + ' ' + td.textContent; // Concatenate the last <td> textContent that ends with '/' and the next <td> textContent
+        const currentValue = lastValue + td.nextElementSibling.textContent; // The same with last step but with the sibling <td> of the target <td>
+        delete result[lastKey];
+        result[currentKey] = currentValue;
       } else {
-        result[titles[i].textContent] =
-          titles[i].nextElementSibling.textContent === '\u00a0'
+        result[td.textContent] =
+          td.nextElementSibling.textContent === '\u00a0'
             ? null
-            : titles[i].nextElementSibling.textContent;
+            : td.nextElementSibling.textContent.replace(
+                'Sign Up for or Manage Property eAlerts',
+                ''
+              );
       }
-    }
-    return result;
+      return result;
+    }, {});
+    return reducedResult;
   });
   resultsArray.push(resultObj);
 }
